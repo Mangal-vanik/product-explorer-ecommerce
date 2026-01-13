@@ -27,22 +27,13 @@ interface ProductPageProps {
   params: Promise<{ id: string }>;
 }
 
-// export async function generateStaticParams() {
-//   const products = await fetchProducts();
-//   return products.map((product: { id: { toString: () => any; }; }) => ({
-//     id: product.id.toString(),
-//   }));
-// }
 
 
-export async function generateStaticParams() {
-  // Hardcode product IDs without calling API
-  const productIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-  
-  return productIds.map((id) => ({
-    id: id.toString(),
-  }));
-}
+
+export const dynamic = 'force-dynamic';
+
+export const fetchCache = 'force-no-store';
+
 
 
 
