@@ -475,6 +475,7 @@ export default function HomePage() {
                 <Grid container spacing={3}>
                   {currentProducts.map((product) => (
                     <ProductCard
+                      key={product.id}
                       product={product}
                       isFavorite={isFavorite(product.id)}
                       onToggleFavorite={toggleFavorite}
