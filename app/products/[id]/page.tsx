@@ -34,19 +34,17 @@ interface ProductPageProps {
 //   }));
 // }
 
+
 export async function generateStaticParams() {
-  try {
-    const products = await fetchProducts();
-    return products.map((product: { id: number | string }) => ({
-      id: product.id.toString(),
-    }));
-  } catch (error) {
-    console.error('Failed to fetch products for static generation:', error);
-    return Array.from({ length: 20 }, (_, i) => ({
-      id: (i + 1).toString(),
-    }));
-  }
+  // Hardcode product IDs without calling API
+  const productIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  
+  return productIds.map((id) => ({
+    id: id.toString(),
+  }));
 }
+
+
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { id } = await params;
