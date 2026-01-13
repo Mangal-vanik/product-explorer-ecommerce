@@ -25,17 +25,22 @@ import {
   StarBorder as StarBorderIcon,
 } from "@mui/icons-material";
 
-interface ProductPageProps {
-  params: Promise<{ id: string }>;
-}
-
-// export async function generateStaticParams() {
-//   console.log('generateStaticParams called - returning hardcoded IDs');
-
+// interface ProductPageProps {
+//   params: Promise<{ id: string }>;
 // }
 
+// // export async function generateStaticParams() {
+// //   console.log('generateStaticParams called - returning hardcoded IDs');
+
+// // }
+
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 export const revalidate = 0;
+
+interface ProductPageProps {
+  params: { id: string };
+}
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { id } = await params;
