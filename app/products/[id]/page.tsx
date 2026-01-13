@@ -27,11 +27,25 @@ interface ProductPageProps {
   params: Promise<{ id: string }>;
 }
 
+// export async function generateStaticParams() {
+//   const products = await fetchProducts();
+//   return products.map((product: { id: { toString: () => any; }; }) => ({
+//     id: product.id.toString(),
+//   }));
+// }
+
 export async function generateStaticParams() {
-  const products = await fetchProducts();
-  return products.map((product: { id: { toString: () => any; }; }) => ({
-    id: product.id.toString(),
-  }));
+  try {
+    const products = await fetchProducts();
+    return products.map((product: { id: number | string }) => ({
+      id: product.id.toString(),
+    }));
+  } catch (error) {
+    console.error('Failed to fetch products for static generation:', error);
+    return Array.from({ length: 20 }, (_, i) => ({
+      id: (i + 1).toString(),
+    }));
+  }
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
