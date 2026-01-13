@@ -1,16 +1,13 @@
-import { 
-  TextField, 
-  InputAdornment, 
+import {
+  TextField,
+  InputAdornment,
   IconButton,
   Box,
   Chip,
-  Autocomplete,
-  Button,
-  Paper
-} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import ClearIcon from '@mui/icons-material/Clear';
-import { useState } from 'react';
+  
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+
 
 interface SearchBarProps {
   value: string;
@@ -20,26 +17,26 @@ interface SearchBarProps {
   onCategoryChange?: (category: string) => void;
 }
 
-export default function SearchBar({ 
-  value, 
-  onChange, 
+export default function SearchBar({
+  value,
+  onChange,
   categories = [],
-  selectedCategory = '',
-  onCategoryChange 
+  selectedCategory = "",
+  onCategoryChange,
 }: SearchBarProps) {
   const handleClear = () => {
-    onChange('');
-    if (onCategoryChange) onCategoryChange('');
+    onChange("");
+    if (onCategoryChange) onCategoryChange("");
   };
 
   const handleCategorySelect = (newValue: string | null) => {
     if (onCategoryChange) {
-      onCategoryChange(newValue || '');
+      onCategoryChange(newValue || "");
     }
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: "100%" }}>
       <TextField
         fullWidth
         variant="outlined"
@@ -58,31 +55,38 @@ export default function SearchBar({
                 onClick={handleClear}
                 size="small"
                 aria-label="clear search"
-              >
-              </IconButton>
+              ></IconButton>
             </InputAdornment>
           ),
         }}
         sx={{
-          '& .MuiOutlinedInput-root': {
+          "& .MuiOutlinedInput-root": {
             borderRadius: 2,
-            '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: 'primary.main',
+            "&:hover .MuiOutlinedInput-notchedOutline": {
+              borderColor: "primary.main",
             },
-            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-              borderColor: 'primary.main',
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor: "primary.main",
               borderWidth: 2,
             },
           },
         }}
       />
-      
+
       {(value || selectedCategory) && (
-        <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+        <Box
+          sx={{
+            mt: 2,
+            display: "flex",
+            gap: 1,
+            flexWrap: "wrap",
+            alignItems: "center",
+          }}
+        >
           {value && (
             <Chip
               label={`Search: "${value}"`}
-              onDelete={() => onChange('')}
+              onDelete={() => onChange("")}
               color="primary"
               size="small"
               variant="outlined"
@@ -91,16 +95,14 @@ export default function SearchBar({
           {selectedCategory && (
             <Chip
               label={`Category: ${selectedCategory}`}
-              onDelete={() => onCategoryChange?.('')}
+              onDelete={() => onCategoryChange?.("")}
               color="secondary"
               size="small"
               variant="outlined"
             />
           )}
-        
         </Box>
       )}
-   
     </Box>
   );
 }
