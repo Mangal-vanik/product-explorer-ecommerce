@@ -37,20 +37,18 @@ interface ProductPageProps {
   params: { id: string };
 }
 
-export async function generateStaticParams() {
-  if (process.env.SKIP_PRODUCT_FETCH === "true") {
-    return [];
-  }
+// /app/products/[id]/page.js
+export const dynamicParams = true;
+export const revalidate = 3600;
 
+export const generateStaticParams = async () => {
   try {
     const products = await fetchProducts();
-    return products.map((p: { id: any }) => ({ id: p.id }));
+    return products.map((product: any) => ({ id: product.id }));
   } catch {
     return [];
   }
-}
-
-export const dynamicParams = true;
+};
 
 export default function ProductPage({ params }: ProductPageProps) {
   const { id } = params;
