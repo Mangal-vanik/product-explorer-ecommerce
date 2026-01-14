@@ -1,7 +1,7 @@
-// app/products/[id]/page.tsx
 "use client";
-import { fetchProductById, fetchProducts } from "@/lib/api";
-import { notFound } from "next/navigation";
+
+import { fetchProductById } from "@/lib/api";
+import { notFound, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -31,26 +31,31 @@ import {
   Security as SecurityIcon,
 } from "@mui/icons-material";
 import { useState, useEffect } from "react";
+import { use } from "react";
 
 interface ProductPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-// /app/products/[id]/page.js
-export const dynamicParams = true;
-export const revalidate = 3600;
-
 export default function ProductPage({ params }: ProductPageProps) {
-  const { id } = params;
+  const { id } = use(params);
+
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const loadProduct = async () => {
       try {
         setLoading(true);
         const data = await fetchProductById(parseInt(id));
+
+        if (!data) {
+          notFound();
+          return;
+        }
+
         setProduct(data);
       } catch (err) {
         console.error("Error loading product:", err);
@@ -111,7 +116,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                 Home
               </Box>
             </Link>
-            <Link href="/" style={{ textDecoration: "none" }}>
+            <Link href="/products" style={{ textDecoration: "none" }}>
               <Box
                 sx={{
                   color: "text.secondary",
@@ -126,7 +131,7 @@ export default function ProductPage({ params }: ProductPageProps) {
             </Typography>
           </Breadcrumbs>
 
-          <Link href="/" style={{ textDecoration: "none" }}>
+          <Link href="/products" style={{ textDecoration: "none" }}>
             <Box
               sx={{
                 display: "flex",
@@ -285,6 +290,10 @@ export default function ProductPage({ params }: ProductPageProps) {
                         fontWeight: "bold",
                         borderRadius: 2,
                       }}
+                      onClick={() => {
+                        console.log("Added to cart:", product);
+                        // Add your cart logic here
+                      }}
                     >
                       Add to Cart - ${product.price.toFixed(2)}
                     </Button>
@@ -355,49 +364,51 @@ export default function ProductPage({ params }: ProductPageProps) {
               </Typography>
             </CardContent>
           </Card>
+
+          <Card
+            elevation={2}
+            sx={{ borderRadius: 2, height: "100%", bgcolor: "success.50" }}
+          >
+            <CardContent>
+              <Stack
+                direction="row"
+                spacing={2}
+                alignItems="center"
+                sx={{ mb: 2 }}
+              >
+                <ReturnIcon color="success" />
+                <Typography variant="h6" fontWeight="bold">
+                  Easy Returns
+                </Typography>
+              </Stack>
+              <Typography variant="body2" color="text.secondary">
+                30-day return policy. Full refund or exchange available.
+              </Typography>
+            </CardContent>
+          </Card>
+
+          <Card
+            elevation={2}
+            sx={{ borderRadius: 2, height: "100%", bgcolor: "warning.50" }}
+          >
+            <CardContent>
+              <Stack
+                direction="row"
+                spacing={2}
+                alignItems="center"
+                sx={{ mb: 2 }}
+              >
+                <SecurityIcon color="warning" />
+                <Typography variant="h6" fontWeight="bold">
+                  Secure Payment
+                </Typography>
+              </Stack>
+              <Typography variant="body2" color="text.secondary">
+                100% secure payments. All major credit cards accepted.
+              </Typography>
+            </CardContent>
+          </Card>
         </Grid>
-        <Card
-          elevation={2}
-          sx={{ borderRadius: 2, height: "100%", bgcolor: "success.50" }}
-        >
-          <CardContent>
-            <Stack
-              direction="row"
-              spacing={2}
-              alignItems="center"
-              sx={{ mb: 2 }}
-            >
-              <ReturnIcon color="success" />
-              <Typography variant="h6" fontWeight="bold">
-                Easy Returns
-              </Typography>
-            </Stack>
-            <Typography variant="body2" color="text.secondary">
-              30-day return policy. Full refund or exchange available.
-            </Typography>
-          </CardContent>
-        </Card>
-        <Card
-          elevation={2}
-          sx={{ borderRadius: 2, height: "100%", bgcolor: "warning.50" }}
-        >
-          <CardContent>
-            <Stack
-              direction="row"
-              spacing={2}
-              alignItems="center"
-              sx={{ mb: 2 }}
-            >
-              <SecurityIcon color="warning" />
-              <Typography variant="h6" fontWeight="bold">
-                Secure Payment
-              </Typography>
-            </Stack>
-            <Typography variant="body2" color="text.secondary">
-              100% secure payments. All major credit cards accepted.
-            </Typography>
-          </CardContent>
-        </Card>
 
         {/* Reviews Preview */}
         <Paper
@@ -451,7 +462,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                     "Good quality for the price. Would definitely recommend to
                     others."
                   </Typography>
-                  <Typography variant="caption" color="text-secondary">
+                  <Typography variant="caption" color="text.secondary">
                     - Michael Chen
                   </Typography>
                 </Stack>
@@ -460,61 +471,6 @@ export default function ProductPage({ params }: ProductPageProps) {
           </div>
         </Paper>
 
-        {/* Related Products (Placeholder) */}
-        <Box sx={{ mt: 8 }}>
-          <Typography variant="h5" fontWeight="bold" gutterBottom>
-            Related Products
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-            You might also be interested in these similar products
-          </Typography>
-          <Grid container spacing={3}>
-            {[1, 2, 3, 4].map((item) => (
-              <Card
-                sx={{
-                  borderRadius: 2,
-                  height: "100%",
-                  cursor: "pointer",
-                  "&:hover": {
-                    transform: "translateY(-4px)",
-                    transition: "transform 0.2s",
-                    boxShadow: 4,
-                  },
-                }}
-              >
-                <CardContent>
-                  <Box
-                    sx={{
-                      height: 200,
-                      bgcolor: "grey.100",
-                      borderRadius: 1,
-                      mb: 2,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Typography color="text.secondary">
-                      Product Image
-                    </Typography>
-                  </Box>
-                  <Typography variant="h6" fontWeight="medium" gutterBottom>
-                    Related Product {item}
-                  </Typography>
-                  <Typography
-                    variant="body1"
-                    color="primary.main"
-                    fontWeight="bold"
-                  >
-                    ${(item * 25).toFixed(2)}
-                  </Typography>
-                </CardContent>
-              </Card>
-            ))}
-          </Grid>
-        </Box>
-
-        {/* Footer Note */}
         <Box sx={{ mt: 8, textAlign: "center", py: 4 }}>
           <Typography variant="body2" color="text.secondary">
             Need help with your purchase? Contact our customer support at
