@@ -1,24 +1,9 @@
-// import type { NextConfig } from "next";
-
-// const nextConfig: NextConfig = {
-//   /* config options here */
-// };
-
-// export default nextConfig;
-
-
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'fakestoreapi.com',
-        pathname: '/img/**',
-      },
-    ],
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    disableStaticGeneration: true,
   },
+  staticPageGenerationTimeout: 120,
 };
 
-export default nextConfig;
+module.exports = nextConfig;
