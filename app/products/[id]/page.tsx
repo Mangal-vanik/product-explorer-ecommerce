@@ -40,15 +40,6 @@ interface ProductPageProps {
 export const dynamicParams = true;
 export const revalidate = 3600;
 
-export const generateStaticParams = async () => {
-  try {
-    const products = await fetchProducts();
-    return products.map((product: any) => ({ id: product.id }));
-  } catch {
-    return [];
-  }
-};
-
 export default function ProductPage({ params }: ProductPageProps) {
   const { id } = params;
   const [product, setProduct] = useState<any>(null);
