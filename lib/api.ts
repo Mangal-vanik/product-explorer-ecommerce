@@ -1,63 +1,36 @@
-// import { Product } from '@/types';
-
-// const API_BASE_URL = 'https://fakestoreapi.com';
-
-// export async function fetchProducts(): Promise<Product[]> {
-//   try {
-//     const response = await fetch(`${API_BASE_URL}/products`, {
-//       next: { revalidate: 3600 } // Cache for 1 hour
-//     });
-    
-//     if (!response.ok) {
-//       throw new Error('Failed to fetch products');
-//     }
-    
-//     return await response.json();
-//   } catch (error) {
-//     console.error('Error fetching products:', error);
-//     throw error;
-//   }
-// }
-
-// export async function fetchProductById(id: number): Promise<Product> {
-//   try {
-//     const response = await fetch(`${API_BASE_URL}/products/${id}`);
-    
-//     if (!response.ok) {
-//       throw new Error('Failed to fetch product');
-//     }
-    
-//     return await response.json();
-//   } catch (error) {
-//     console.error(`Error fetching product ${id}:`, error);
-//     throw error;
-//   }
-// }
-
-
-// lib/api.ts
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://fakestoreapi.com';
+
+const isBuildTime = typeof window === 'undefined' && process.env.NODE_ENV === 'production';
 
 export async function fetchProducts() {
   try {
-    // Add timeout for build process
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-    
-    const res = await fetch(`${API_URL}/products`, {
-      signal: controller.signal,
-      next: { revalidate: 3600 } // Cache for 1 hour
-    });
-    
-    clearTimeout(timeoutId);
+    const fetchOptions: RequestInit = isBuildTime
+      ? {
+          cache: 'no-store', 
+          headers: {
+            'User-Agent': 'Next.js Static Generation',
+          },
+        }
+      : {
+          next: { revalidate: 3600 },
+        };
+
+    const res = await fetch(`${API_URL}/products`, fetchOptions);
     
     if (!res.ok) {
-      throw new Error(`Failed to fetch products: ${res.statusText}`);
+      // Provide more detailed error message
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
     }
     
     return await res.json();
   } catch (error) {
     console.error('API Error in fetchProducts:', error);
+    
+    if (isBuildTime) {
+      console.log('Build-time fetch failed, returning fallback data');
+      return getFallbackProducts();
+    }
+    
     throw new Error('Failed to fetch products');
   }
 }
@@ -65,11 +38,11 @@ export async function fetchProducts() {
 export async function fetchProductById(id: number) {
   try {
     const res = await fetch(`${API_URL}/products/${id}`, {
-      next: { revalidate: 3600 } // Cache for 1 hour
+      next: { revalidate: 3600 },
     });
     
     if (!res.ok) {
-      throw new Error(`Failed to fetch product ${id}: ${res.statusText}`);
+      throw new Error(`HTTP ${res.status}: Failed to fetch product ${id}`);
     }
     
     return await res.json();
@@ -77,4 +50,19 @@ export async function fetchProductById(id: number) {
     console.error(`API Error in fetchProductById(${id}):`, error);
     throw new Error(`Failed to fetch product ${id}`);
   }
+}
+
+function getFallbackProducts() {
+  return Array.from({ length: 10 }, (_, i) => ({
+    id: i + 1,
+    title: `Product ${i + 1}`,
+    price: (i + 1) * 10,
+    category: 'general',
+    image: `https://fakestoreapi.com/img/81fPKd-2AYL.jpg`,
+    rating: {
+      rate: 4.5,
+      count: 120,
+    },
+    description: 'A premium quality product with excellent features.',
+  }));
 }

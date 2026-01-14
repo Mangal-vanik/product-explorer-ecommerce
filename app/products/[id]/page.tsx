@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchProductById, fetchProducts } from "@/lib/api";
+import { fetchProductById } from "@/lib/api";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,40 +17,50 @@ import {
   Card,
   CardContent,
   Grid,
+  Button,
 } from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
   Home as HomeIcon,
+  ShoppingCart as ShoppingCartIcon,
   Star as StarIcon,
   StarBorder as StarBorderIcon,
+  LocalShipping as ShippingIcon,
+  AssignmentReturn as ReturnIcon,
+  Security as SecurityIcon,
 } from "@mui/icons-material";
-
-// interface ProductPageProps {
-//   params: Promise<{ id: string }>;
-// }
-
-// // export async function generateStaticParams() {
-// //   console.log('generateStaticParams called - returning hardcoded IDs');
-
-// // }
-
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-export const revalidate = 0;
 
 interface ProductPageProps {
   params: { id: string };
 }
 
+
+export async function generateStaticParams() {
+
+  return [
+    { id: "1" },
+    { id: "2" },
+    { id: "3" },
+    { id: "4" },
+    { id: "5" },
+    { id: "6" },
+    { id: "7" },
+    { id: "8" },
+    { id: "9" },
+    { id: "10" },
+  ];
+}
+
+export const dynamicParams = true;
+
 export default async function ProductPage({ params }: ProductPageProps) {
-  const { id } = await params;
+  const { id } = params;
 
   try {
     const product = await fetchProductById(parseInt(id));
 
     return (
       <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
-        {/* Header with Breadcrumbs */}
         <Paper
           elevation={0}
           square
@@ -69,6 +79,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     display: "flex",
                     alignItems: "center",
                     color: "text.secondary",
+                    "&:hover": { color: "primary.main" },
                   }}
                 >
                   <HomeIcon sx={{ mr: 0.5, fontSize: 20 }} />
@@ -76,7 +87,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 </Box>
               </Link>
               <Link href="/" style={{ textDecoration: "none" }}>
-                <Typography color="text.secondary">Products</Typography>
+                <Box
+                  sx={{
+                    color: "text.secondary",
+                    "&:hover": { color: "primary.main" },
+                  }}
+                >
+                  Products
+                </Box>
               </Link>
               <Typography color="text.primary" fontWeight="medium">
                 {product.title}
@@ -99,7 +117,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </Container>
         </Paper>
 
-        {/* Main Content */}
         <Container maxWidth="lg" sx={{ py: 6 }}>
           <Paper
             elevation={2}
@@ -110,7 +127,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
             }}
           >
             <div className="grid grid-cols-1 lg:grid-cols-2">
-              {/* Product Image */}
               <div className="lg:col-span-1">
                 <Box
                   sx={{
@@ -135,7 +151,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     priority
                   />
 
-                  {/* Category Badge */}
                   <Chip
                     label={product.category}
                     color="primary"
@@ -145,16 +160,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       left: 16,
                       fontWeight: "bold",
                       fontSize: "0.875rem",
+                      textTransform: "capitalize",
                     }}
                   />
                 </Box>
               </div>
 
-              {/* Product Details */}
               <div className="lg:col-span-1">
                 <Box sx={{ p: { xs: 3, md: 5 } }}>
                   <Stack spacing={3}>
-                    {/* Product Title */}
                     <Box>
                       <Typography
                         variant="h4"
@@ -162,15 +176,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
                         fontWeight="bold"
                         color="text.primary"
                         gutterBottom
+                        sx={{ fontSize: { xs: "1.75rem", md: "2.125rem" } }}
                       >
                         {product.title}
                       </Typography>
 
                       {/* Price and Rating */}
                       <Stack
-                        direction="row"
+                        direction={{ xs: "column", sm: "row" }}
                         spacing={3}
-                        alignItems="center"
+                        alignItems={{ xs: "flex-start", sm: "center" }}
                         sx={{ mb: 2 }}
                       >
                         <Typography
@@ -203,7 +218,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
                     <Divider />
 
-                    {/* Description */}
                     <Box>
                       <Typography
                         variant="h6"
@@ -227,6 +241,24 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
                     <Divider />
 
+                    {/* Add to Cart Button */}
+                    <Box>
+                      <Button
+                        variant="contained"
+                        size="large"
+                        fullWidth
+                        startIcon={<ShoppingCartIcon />}
+                        sx={{
+                          py: 1.5,
+                          fontSize: "1rem",
+                          fontWeight: "bold",
+                          borderRadius: 2,
+                        }}
+                      >
+                        Add to Cart
+                      </Button>
+                    </Box>
+
                     {/* Key Features */}
                     <Box>
                       <Typography
@@ -237,7 +269,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       >
                         Key Features
                       </Typography>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <Stack spacing={1}>
                           <Typography variant="body2" color="text.secondary">
                             • Premium Quality Materials
@@ -268,53 +300,77 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
           </Paper>
 
-          <Card elevation={2} sx={{ borderRadius: 2, height: "100%" }}>
-            <CardContent>
-              <Stack spacing={2}>
-                <Typography variant="h6" fontWeight="bold" color="primary.main">
-                  Return Policy
-                </Typography>
-                <Stack spacing={1}>
-                  <Typography variant="body2" color="text.secondary">
-                    • 30-day return policy
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    • Free returns on all orders
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    • Full refund or exchange
-                  </Typography>
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-
-          <Card elevation={2} sx={{ borderRadius: 2, height: "100%" }}>
-            <CardContent>
-              <Stack spacing={2}>
-                <Typography variant="h6" fontWeight="bold" color="primary.main">
-                  Warranty
-                </Typography>
-                <Stack spacing={1}>
-                  <Typography variant="body2" color="text.secondary">
-                    • 1-year manufacturer warranty
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    • 24/7 customer support
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    • Extended warranty available
+          <Grid container spacing={3} sx={{ mb: 6 }}>
+            <Card
+              elevation={2}
+              sx={{ borderRadius: 2, height: "100%", bgcolor: "primary.50" }}
+            >
+              <CardContent>
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  alignItems="center"
+                  sx={{ mb: 2 }}
+                >
+                  <ShippingIcon color="primary" />
+                  <Typography variant="h6" fontWeight="bold">
+                    Fast Shipping
                   </Typography>
                 </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
+                <Typography variant="body2" color="text.secondary">
+                  Free shipping on orders over $50. Delivery within 2-3 business
+                  days.
+                </Typography>
+              </CardContent>
+            </Card>
+            <Card
+              elevation={2}
+              sx={{ borderRadius: 2, height: "100%", bgcolor: "success.50" }}
+            >
+              <CardContent>
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  alignItems="center"
+                  sx={{ mb: 2 }}
+                >
+                  <ReturnIcon color="success" />
+                  <Typography variant="h6" fontWeight="bold">
+                    Easy Returns
+                  </Typography>
+                </Stack>
+                <Typography variant="body2" color="text.secondary">
+                  30-day return policy. Full refund or exchange available.
+                </Typography>
+              </CardContent>
+            </Card>
+            <Card
+              elevation={2}
+              sx={{ borderRadius: 2, height: "100%", bgcolor: "warning.50" }}
+            >
+              <CardContent>
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  alignItems="center"
+                  sx={{ mb: 2 }}
+                >
+                  <SecurityIcon color="warning" />
+                  <Typography variant="h6" fontWeight="bold">
+                    Secure Payment
+                  </Typography>
+                </Stack>
+                <Typography variant="body2" color="text.secondary">
+                  100% secure payments. All major credit cards accepted.
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
 
           {/* Reviews Preview */}
           <Paper
             elevation={2}
             sx={{
-              mt: 6,
               p: 4,
               borderRadius: 3,
             }}
@@ -372,16 +428,78 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
           </Paper>
 
+          {/* Related Products (Placeholder) */}
+          <Box sx={{ mt: 8 }}>
+            <Typography variant="h5" fontWeight="bold" gutterBottom>
+              Related Products
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+              You might also be interested in these similar products
+            </Typography>
+            <Grid container spacing={3}>
+              {[1, 2, 3, 4].map((item) => (
+                <Card
+                  sx={{
+                    borderRadius: 2,
+                    height: "100%",
+                    cursor: "pointer",
+                    "&:hover": {
+                      transform: "translateY(-4px)",
+                      transition: "transform 0.2s",
+                    },
+                  }}
+                >
+                  <CardContent>
+                    <Box
+                      sx={{
+                        height: 200,
+                        bgcolor: "grey.100",
+                        borderRadius: 1,
+                        mb: 2,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Typography color="text.secondary">
+                        Product Image
+                      </Typography>
+                    </Box>
+                    <Typography variant="h6" fontWeight="medium" gutterBottom>
+                      Related Product {item}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      color="primary.main"
+                      fontWeight="bold"
+                    >
+                      ${(item * 25).toFixed(2)}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              ))}
+            </Grid>
+          </Box>
+
           {/* Footer Note */}
-          <Box sx={{ mt: 6, textAlign: "center" }}>
+          <Box sx={{ mt: 8, textAlign: "center", py: 4 }}>
             <Typography variant="body2" color="text.secondary">
-              Need help? Contact our customer support at support@store.com
+              Need help with your purchase? Contact our customer support at
+              support@store.com or call (800) 123-4567
+            </Typography>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ display: "block", mt: 1 }}
+            >
+              Monday to Friday, 9 AM - 6 PM EST
             </Typography>
           </Box>
         </Container>
       </Box>
     );
   } catch (error) {
+    console.error(`Error loading product ${id}:`, error);
     notFound();
   }
 }
