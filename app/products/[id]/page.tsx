@@ -1,7 +1,7 @@
 // app/products/[id]/page.tsx
 "use client";
 
-import { fetchProductById } from "@/lib/api";
+import { fetchProductById, fetchProducts } from "@/lib/api";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -35,6 +35,19 @@ import { useState, useEffect } from "react";
 
 interface ProductPageProps {
   params: { id: string };
+}
+
+export async function generateStaticParams() {
+  if (process.env.SKIP_PRODUCT_FETCH === "true") {
+    return [];
+  }
+
+  try {
+    const products = await fetchProducts();
+    return products.map((p: { id: any }) => ({ id: p.id }));
+  } catch {
+    return [];
+  }
 }
 
 export const dynamicParams = true;
@@ -85,7 +98,6 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
-      {/* Header with Breadcrumbs */}
       <Paper
         elevation={0}
         square

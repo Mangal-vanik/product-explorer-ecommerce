@@ -1,19 +1,13 @@
 // lib/api.ts - COMPLETELY REWRITTEN
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://fakestoreapi.com";
 
-// Check if we're in Node.js (build time) or browser
 const isServer = typeof window === "undefined";
 
 export async function fetchProducts() {
-  // For build time, return empty array or mock data
-  if (isServer && process.env.NODE_ENV === "production") {
-    console.log("Build environment detected, returning mock data");
-    return getMockProducts();
-  }
+ const isBuildTime = process.env.NEXT_PHASE === "phase-production-build";
 
   try {
     const res = await fetch(`${API_URL}/products`, {
-      // Different cache strategies for different environments
       cache: isServer ? "no-store" : "default",
       headers: {
         "User-Agent": "Mozilla/5.0 (compatible; Next.js)",
