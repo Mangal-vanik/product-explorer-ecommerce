@@ -1,5 +1,5 @@
 // app/products/[id]/page.tsx
-
+"use client";
 import { fetchProductById, fetchProducts } from "@/lib/api";
 import { notFound } from "next/navigation";
 import Image from "next/image";
