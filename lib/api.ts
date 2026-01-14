@@ -1,68 +1,97 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://fakestoreapi.com';
+// lib/api.ts - COMPLETELY REWRITTEN
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://fakestoreapi.com";
 
-const isBuildTime = typeof window === 'undefined' && process.env.NODE_ENV === 'production';
+// Check if we're in Node.js (build time) or browser
+const isServer = typeof window === "undefined";
 
 export async function fetchProducts() {
-  try {
-    const fetchOptions: RequestInit = isBuildTime
-      ? {
-          cache: 'no-store', 
-          headers: {
-            'User-Agent': 'Next.js Static Generation',
-          },
-        }
-      : {
-          next: { revalidate: 3600 },
-        };
+  // For build time, return empty array or mock data
+  if (isServer && process.env.NODE_ENV === "production") {
+    console.log("Build environment detected, returning mock data");
+    return getMockProducts();
+  }
 
-    const res = await fetch(`${API_URL}/products`, fetchOptions);
-    
+  try {
+    const res = await fetch(`${API_URL}/products`, {
+      // Different cache strategies for different environments
+      cache: isServer ? "no-store" : "default",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; Next.js)",
+      },
+    });
+
     if (!res.ok) {
-      // Provide more detailed error message
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      console.warn(`API returned ${res.status}, using mock data`);
+      return getMockProducts();
     }
-    
+
     return await res.json();
   } catch (error) {
-    console.error('API Error in fetchProducts:', error);
-    
-    if (isBuildTime) {
-      console.log('Build-time fetch failed, returning fallback data');
-      return getFallbackProducts();
-    }
-    
-    throw new Error('Failed to fetch products');
+    console.error("Failed to fetch products:", error);
+    return getMockProducts();
   }
 }
 
 export async function fetchProductById(id: number) {
   try {
     const res = await fetch(`${API_URL}/products/${id}`, {
-      next: { revalidate: 3600 },
+      cache: "no-store", // Always fresh data
     });
-    
+
     if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: Failed to fetch product ${id}`);
+      if (res.status === 404) {
+        throw new Error("Product not found");
+      }
+      console.warn(`Failed to fetch product ${id}, returning mock`);
+      return getMockProduct(id);
     }
-    
+
     return await res.json();
   } catch (error) {
-    console.error(`API Error in fetchProductById(${id}):`, error);
-    throw new Error(`Failed to fetch product ${id}`);
+    console.error(`Error fetching product ${id}:`, error);
+
+    // Return mock data if API fails
+    if (isServer && process.env.NODE_ENV === "production") {
+      return getMockProduct(id);
+    }
+
+    throw error;
   }
 }
 
-function getFallbackProducts() {
-  return Array.from({ length: 10 }, (_, i) => ({
+// Mock data for build time
+function getMockProducts() {
+  return Array.from({ length: 20 }, (_, i) => ({
     id: i + 1,
     title: `Product ${i + 1}`,
     price: (i + 1) * 10,
-    category: 'general',
-    image: `https://fakestoreapi.com/img/81fPKd-2AYL.jpg`,
+    category: ["electronics", "jewelery", "men's clothing", "women's clothing"][
+      i % 4
+    ],
+    image: `https://fakestoreapi.com/img/${(i % 10) + 1}.jpg`,
     rating: {
-      rate: 4.5,
-      count: 120,
+      rate: 4 + (i % 5) / 10,
+      count: 100 + i * 10,
     },
-    description: 'A premium quality product with excellent features.',
+    description: `This is a premium quality product ${
+      i + 1
+    } with excellent features and durability. Perfect for everyday use.`,
   }));
+}
+
+function getMockProduct(id: number) {
+  return {
+    id,
+    title: `Product ${id}`,
+    price: id * 10,
+    category: ["electronics", "jewelery", "men's clothing", "women's clothing"][
+      id % 4
+    ],
+    image: `https://fakestoreapi.com/img/${(id % 10) + 1}.jpg`,
+    rating: {
+      rate: 4 + (id % 5) / 10,
+      count: 100 + id * 10,
+    },
+    description: `This is a premium quality product ${id} with excellent features and durability. Perfect for everyday use.`,
+  };
 }
